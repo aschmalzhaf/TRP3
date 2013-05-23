@@ -1,0 +1,269 @@
+<?php echo $this->headScript()->appendFile('/scripts/jquery_validate.js') ?>
+<?php echo $this->headScript()->appendFile('/scripts/sortable.js') ?>
+<script type="text/javascript">
+    $(function() {
+
+        var validator = "";
+        $("document").ready(function(){
+		
+            //validation...
+            validator = $("#maform").validate({
+                rules: {
+                    form_fname: {
+                        required: true },
+                    form_lname: {
+                        required: true },
+                    form_email: {
+                        email: true},
+                    form_city: {
+                        required: false },
+                    form_sjob: {
+                        required: false },
+                    form_role: {
+                        required: true },
+                    form_intnote: {
+                        required: false }
+                },
+                messages: {
+                    form_fname: {
+                        required: "Name notwendig!" },
+                    form_lname: {
+                        required: "Name notwendig!" },
+                    form_birthday: {
+                        required: "Geburtstag notwendig!"},
+                    form_role: {
+                        required: "Rolle notwendig!"},
+                    form_email: {
+                        email: "eMail-Adresse ung&uuml;ltig!" }		
+                }
+				
+            });
+        
+            $("#form_email").blur(function(){
+                var mailadress = $("#form_email").val();
+                $.getJSON('/Captteam/emailcheck',
+                {'mailadress':mailadress},
+                function(data){
+                    if(data.mailexists == true){
+                        if($(".hint[for='form_email']").length == 0){
+                            $("#form_email").after("<label class=\"hint\" for=\"form_email\">eMail-Adresse bereits vergeben!</label>");
+                        }else{
+                            $(".hint[for='form_email']").show();
+                        }
+                        
+                    }else{
+                        $(".hint[for='form_email']").hide();
+                    }
+                });          
+            });
+        
+            //clear form
+            function clearForm(form) {
+                // iterate over all of the inputs for the form
+                // element that was passed in
+                $(':input', form).each(function() {
+                    var type = this.type;
+                    var tag = this.tagName.toLowerCase(); // normalize case
+                    // it's ok to reset the value attr of text inputs,
+                    // password inputs, and textareas
+                    if (type == 'text' || type == 'password' ||type == 'hidden' || tag == 'textarea')
+                        this.value = "";
+                    // checkboxes and radios need to have their checked state cleared
+                    // but should *not* have their 'value' changed
+                    else if (type == 'checkbox' || type == 'radio')
+                        this.checked = false;
+                    // select elements need to have their 'selectedIndex' property set to -1
+                    // (this works for both single and multiple select elements)
+                });
+                $('select [value=0]').attr('selected', 'selected');
+			  
+            };
+		
+            //save data and load table
+            $("#send_button").click(function(){
+                if($("#maform").valid()){
+                    //Save Data
+                    //check blocked box
+                    var blocked;
+                    if($("#form_blocked:checked").attr("value")==undefined){blocked = "false";}else{blocked = "true";};
+                    $.ajax({
+                        type: "POST",
+                        url: "/Captteam/savestaff",
+                        data: "fname="+$("#form_fname").attr("value")
+                            +"&lname="+$("#form_lname").attr("value")
+                            +"&email="+$("#form_email").attr("value")
+                            +"&city="+$("#form_city").attr("value")
+                            +"&kv="+$("#form_kv").attr("value")
+                            +"&sjob="+$("#form_sjobid").attr("value")
+                            +"&blocked="+blocked
+                            +"&role="+$("#form_role option:selected").attr("value")
+                            +"&intnote="+$("#form_intnote").attr("value"),
+                        success: function(data){
+                            getMessages();
+                            clearForm("#maform");	
+                            //Reload Table
+                            $.ajax({
+                                type: "POST",
+                                url: "/Captteam/gettable",
+                                success: function(data){
+                                    $("#entries_table").html(data);
+                                    //reinit table sorter!
+                                    sortables_init();
+                                },
+                                error: function(XMLHttpRequest, textStatus, errorThrown){
+                                    alert("Fehler! " + textStatus);
+                                }
+                            });		
+                        }			
+                    });	
+                };
+                return false;
+            });
+				
+
+		
+            //add toggle function for MA panel
+            $("#button").click(function() {
+			
+                $("#insertpanel").toggle('blind');	
+
+                if($("#button").text() == "Mitarbeiter-Eingabe anzeigen"){
+                    $("#button").text("Mitarbeiter-Eingabe ausblenden");
+                }else{
+                    $("#button").text("Mitarbeiter-Eingabe anzeigen");
+                }
+				
+                return false;
+            });	
+            $("#insertpanel").hide();
+
+
+
+            $(".sjobvaluebutton").click(function(data){
+                $("#form_sjobid").val($(this).attr("id"));
+                if($(this).attr("id")!=""){
+                    $("#form_sjob").val($(this).text());
+                }else{
+                    $("#form_sjob").val("");
+                }
+                $('#sjobpanel').modal('hide');
+            });
+        });
+    });
+
+</script>
+
+<div style="float: left;">
+
+    <!-- start normal site -->
+    <p>
+        <button class="btn btn-inverse" id="button">Mitarbeiter-Eingabe anzeigen</button>
+    </p>
+
+
+    <div id="insertpanel" >
+        <form id="maform" class="form-horizontal" action="" method="get" accept-charset="UTF-8">
+            <div class="control-group">
+                <label for="form_fname" class="control-label">Vorname<span class="reqstar">*</span></label>
+                <div class="controls">
+                    <input id="form_fname" type="text" name="form_fname" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_lname" class="control-label">Nachname<span class="reqstar">*</span></label>
+                <div class="controls">
+                    <input id="form_lname" type="text" name="form_lname"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_email" class="control-label">E-Mail<span class="reqstar">*</span></label>
+                <div class="controls">
+                    <input id="form_email" type="text" name="form_email"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_city" class="control-label">Ort</label>
+                <div class="controls">
+                    <input id="form_city" type="text" name="form_city"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_kv" class="control-label">KV</label>
+                <div class="controls">
+                    <select size="1" id="form_kv" name="kv">
+                        <?php echo $this->kvopts ?>
+                    </select>   
+                </div>
+            </div> 
+            <div class="control-group">
+                <label for="form_sjob" class="control-label">Spezielle Aufgabe</label>
+                <div class="controls">
+                    <input id="form_sjobid" type="hidden" name="form_sjobid" value=""/>
+                    <input id="form_sjob" type="text" name="form_sjob" disabled/>
+
+                    <button class="btn" type="button" data-toggle="modal" href="#sjobpanel" ><i class="icon-list-alt"></i></button>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_sjob" class="control-label"> </label>
+                <div class="controls">
+                    <label for="form_blocked" class="checkbox">
+                        <input id="form_blocked" type="checkbox" name="form_blocked" value="true">
+                        ganze Nacht gesperrt</label>
+                    <p class="help-block">Beispiel: Bistromitarbeiter für ganze Nacht</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_role" class="control-label">Rolle<span class="reqstar">*</span></label>
+                <div class="controls">
+                    <select size="1" id="form_role" name="form_role">
+                        <?php echo $this->roleopts ?>
+                    </select>
+                    <p class="help-block">normaler Mitarbeiter oder verantwortlich für ganzen Bereich</p>
+                </div>
+
+            </div>
+
+            <div class="control-group">
+                <label for="form_intnote" class="control-label">interne Notiz<br/>(nur für TNTler sichtbar)</label>
+                <div class="controls">
+                    <textarea id="form_intnote" name="form_intnote"  cols="20" rows="2"></textarea> 
+                    <p class="help-block">Beispiel: hat Gipsfuß, kann nicht schwimmen (Wichtig für Mitarbeitereinteilung)</p>
+                </div>
+            </div>
+
+
+            <div class="control-group">
+                <label for="send_button" class="control-label">&nbsp;</label>
+                <div class="controls">
+                    <input id="send_button" class="btn btn-primary" name="send_button" type="submit" value="Mitarbeiter speichern"/>
+                    <p class="help-block"><strong>INFO:</strong> Der Mitarbeiter wird automatisch per eMail benachrichtigt.</p>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <p>
+    <div id="entries_table">
+        <?php echo $this->entries; ?>
+    </div>
+</p>
+</div>
+
+<!--  Wertehilfe für SJOBS = Spezielle Aufgaben -->
+<div class="modal fade hide" id="sjobpanel">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Spezielle Aufgaben</h3>
+    </div>
+    <div id="modal" class="modal-body">
+        <br><strong>ACHTUNG:</strong> Hier nur dann Aufgabe auswählen, wenn der Mitarbeiter KONKRET DAFÜR angefragt wurde. 
+        <br>Reine Wünsche können von diesem selber eingetragen werden!<br/>
+        <?php echo $this->sjobopts ?>
+    </div>
+    <div class="modal-footer">
+        <a href="#" id="" class="btn btn-primary sjobvaluebutton" data-dismiss="modal">Schließen</a>
+    </div>
+</div>

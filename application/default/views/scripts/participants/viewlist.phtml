@@ -1,0 +1,223 @@
+<?php 
+if(!isset($this->cols))
+	$this->cols = Array();
+echo $this->headScript()->appendFile('/scripts/sortable.js');
+?>
+
+<script type="text/javascript">
+$(function() {
+
+		//add toggle function for Participants panel
+		$("#colbutton").click(function() {
+			$("#colpanel").toggle('blind');	
+			return false;
+		});	
+		$("#colpanel").hide();
+
+
+		//add "clear fields" function for search fields
+		$("#clearfields").click(function() {
+			$("#searchpanel input").val("");
+			return false;
+		});
+
+		//add "deselect all" function to colform
+		$("#deselectall").click(function() {
+			$("#colpanel input:checkbox").attr("checked","");
+			return false;
+		});
+
+		//add "select all" function to colform
+		$("#selectall").click(function() {
+			$("#colpanel input:checkbox").attr("checked","checked");
+			return false;
+		});
+
+		//doublechange for addedby
+		$("#co_addedby_fname").change( function(){
+			if($("#co_addedby_fname").attr("checked")==""){
+				$("#co_addedby_lname").attr("checked","");
+			}else{
+				$("#co_addedby_lname").attr("checked","checked");
+			}
+		});
+
+});
+
+</script>
+
+
+
+<div>
+
+
+
+<form id="colform" action="" method="POST" accept-charset="UTF-8">
+<div id="searchpanel" >
+		<span style="font-style: italic;"><strong>*</strong> = Platzhalter</span>
+			<div class="inputbox">
+				<label for="wh_ID" class="formlabel">ID</label>
+				<input type="text" name="wh_ID" value="<?php echo $this->whereVals['ID']; ?>"/>
+			</div>
+
+			<div class="inputbox">
+				<label for="wh_vorname" class="formlabel">Vorname</label>
+				<input type="text" name="wh_Vorname" value="<?php echo $this->whereVals['Vorname']; ?>"/>
+			</div>
+		
+			<div class="inputbox">
+				<label for="wh_name" class="formlabel">Nachname</label>
+				<input type="text" name="wh_Name" value="<?php echo $this->whereVals['Name']; ?>"/>
+			</div>
+		
+			<div class="inputbox">
+				<label for="wh_Ort" class="formlabel">Ort</label>
+				<input type="text" name="wh_Ort" value="<?php echo $this->whereVals['Ort']; ?>"/>
+			</div>
+		
+			<div class="inputbox">
+				<label for="wh_Ort" class="formlabel">Art</label><br>
+				<input type="radio" name="wh_art" value="" <?php if(!isset($this->whereVals['art']) || (isset($this->whereVals['art']) && $this->whereVals['art']=="")) echo "checked"; ?>/>Alle<br>
+				<input type="radio" name="wh_art" value="teennight" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="teennight") echo "checked"; ?>/>Teennight<br>
+				<input type="radio" name="wh_art" value="teennightplus" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="teennightplus") echo "checked"; ?>/>Teennightplus<br>
+				<input type="radio" name="wh_art" value="teennight*" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="teennight*") echo "checked"; ?>/>Teennight ges<br>
+				<input type="radio" name="wh_art" value="jufa" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="jufa") echo "checked"; ?>/>Jufa<br>
+				<input type="radio" name="wh_art" value="tg_sa" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="tg_sa") echo "checked"; ?>/>TG Sa<br>
+				<input type="radio" name="wh_art" value="tg_so" <?php if(isset($this->whereVals['art'])) if($this->whereVals['art']=="tg_so") echo "checked"; ?>/>TG so<br>
+			</div>
+			<br>
+		<a id="clearfields" style="background-color: red;" >Felder leeren</a>
+</div>
+
+<br>
+	<div>
+		<input type="submit" name="show" value="Daten anzeigen"/>
+		<input type="submit" name="excel" value="Excel-Export"/>
+		<input type="submit" name="csv" value="CSV-Export"/>
+		<input type="submit" name="anmeldeliste" value="Excel Anmeldeliste"/>
+		<button id="colbutton">Spalten ausw&auml;hlen</button>
+	</div>
+<br>
+
+
+<div id="colpanel">
+	<table>
+		<tr>
+		<td>
+			<div class="inputbox">
+				<label for="co_unterschrift" class="formlabel">Unterschrift</label>
+				<input type="checkbox" name="co_unterschrift" value="Unterschrift" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_anzahl" class="formlabel">Anzahl</label>
+				<input type="checkbox" name="co_anzahl" value="Anzahl" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_name" class="formlabel">Nachname</label>
+				<input type="checkbox" name="co_name" value="Nachname" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_vorname" class="formlabel">Vorname</label>
+				<input type="checkbox" name="co_vorname" value="Vorname" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_plz" class="formlabel">PLZ</label>
+				<input type="checkbox" name="co_plz" value="PLZ" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_ort" class="formlabel">Ort</label>
+				<input type="checkbox" name="co_ort" value="Ort" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_strasse" class="formlabel">Strasse</label>
+				<input type="checkbox" name="co_strasse" value="Strasse" checked/>
+			</div>
+		<p>&nbsp;</p>
+		</td>
+		<td>
+
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_mail" class="formlabel">Email</label>
+				<input type="checkbox" name="co_mail" value="Email" checked/>
+			</div>
+			<div class="inputbox">
+				<label for="co_tel" class="formlabel">Telefonnummer</label>
+				<input type="checkbox" name="co_tel" value="Telefonnummer" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_geb" class="formlabel">Geburtstag</label>
+				<input type="checkbox" name="co_geb" value="Geburtstag" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_art" class="formlabel">Art</label>
+				<input type="checkbox" name="co_art" value="Art" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_schlafen" class="formlabel">&uuml;bernachtung</label>
+				<input type="checkbox" name="co_schlafen" value="&Uuml;bernachtung" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_samstag" class="formlabel">Samstag</label>
+				<input type="checkbox" name="co_samstag" value="Samstag" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_kommentar" class="formlabel">Kommentar</label>
+				<input type="checkbox" name="co_kommentar" value="Kommentar" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_addedby" class="formlabel">Hinzugefügt</label>
+				<input type="checkbox" name="co_addedby" value="Hinzugef&uuml;gt" checked/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="co_ma" class="formlabel">MA ID</label>
+				<input type="checkbox" name="co_ma" value="MA"/>
+			</div>
+		<p>&nbsp;</p>
+			
+		</td>
+		</tr>
+	</table>
+	<button id="deselectall">alle abw&auml;hlen</button><button id="selectall">alle anw&auml;hlen</button>
+</div>
+
+</form>
+</div>
+<div>
+
+<p>
+<?php if(isset($this->sql_count)){ ?>
+	Anzahl der Ergebnisse: <?php echo $this->sql_count?>
+<?php } ?>
+</p>
+
+
+<div id="entries_table">
+	<?php echo $this->table?>
+</div>
+
+<p>
+<br>
+<?php if(isset($this->sql_string)){ ?>
+<span style="color: grey;">
+	<strong>SQL-Abfrage:</strong>
+	<?php echo $this->sql_string;?>
+</span>
+<?php } ?>
+</p>
+</div>
+
+

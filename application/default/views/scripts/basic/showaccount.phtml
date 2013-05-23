@@ -1,0 +1,68 @@
+<div style="float:left;">
+	<form id="corrform" action="/Basic/changeaccount" method="post"  >
+			<label for="form_fname" class="formlabel dark">Vorname</label>
+			<?php echo $this->usrdata['fname']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_lname" class="formlabel dark">Nachname</label>
+			<?php echo $this->usrdata['lname']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_birthday" class="formlabel dark">Stra&szlig;e/Hausnr.</label>
+			<?php echo $this->usrdata['street']?>&ensp;		
+		<p>&nbsp;</p>
+			<label for="form_city" class="formlabel dark">Ort:</label>
+			<?php echo $this->usrdata['city']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_birthday" class="formlabel dark">Geburtstag</label>
+			<?php echo $this->usrdata['birthday']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_city" class="formlabel dark">eMail-Adresse</label>
+			<?php echo $this->usrdata['email']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_mphone" class="formlabel dark">Handynummer</label>
+			<?php echo $this->usrdata['mphone']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_mphone" class="formlabel dark">Festnetz</label>
+			<?php echo $this->usrdata['phone']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_kv" class="formlabel dark">KV</label>
+			<?php echo $this->usrdata['kv_name']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_sjob" class="formlabel dark">Spezielle Aufgabe</label>
+			<?php if($this->usrdata['sjob_name']!="")
+			{
+				echo $this->usrdata['sjob_name'];
+			}
+					else{echo "keine";}
+			?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_role" class="formlabel dark">Rolle</label>
+			<?php echo $this->usrdata['role_name']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_role" class="formlabel dark">Teennight-Erfahrungen</label>
+			<?php echo $this->usrdata['exp']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_role" class="formlabel dark">Anmerkungen/Sonstiges</label>
+			<?php echo $this->usrdata['usrnote']?>&ensp;
+		<p>&nbsp;</p>
+			<label for="form_role" class="formlabel dark">JuFa Anmeldung</label>
+			<?php if ($this->participantdata['jufa'] == "jufa") echo "Ja"; else echo "Nein";?>&ensp;
+		<p>&nbsp;</p>
+			<input id="change_button" type="submit" value="Daten &auml;ndern" /> 
+	</form>	
+</div>		
+
+<!-- Infobox -->
+<div style="float: right; margin-right: 60px;">
+<div style="background: #8F8 url(../images/IBbody.jpg); width: 250px;">
+  <img src="../images/IBtop.jpg"></img>
+  <div style="text-align: center; padding-left: 30px; margin-top: -10px; padding-right: 10px; ">
+    <span style="color: white; font-size: 14pt;">Wünsche schon eingegeben?<br>
+	<b>Nein?</b></span>
+    <br/>
+    <span style="color: white; font-size: 12pt;"><a href="/Basic/wishlist">Dann gleich hier tun!</a></span>	
+	</div>
+    <img src="../images/IBbottom.jpg"></img>
+</div>
+</div>
+
+

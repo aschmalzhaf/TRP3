@@ -1,0 +1,180 @@
+<script type="text/javascript">
+$("document").ready(function(){
+
+  //load wish options at startup
+  loadWishoptions();
+  
+
+  
+  function loadWishoptions(){  
+    $.getJSON('/wishoptions/getwishoptionsjson', function(data){
+        var wbox;
+        for(var i = 0; i < data.length; i++){
+            
+        	wbox = $("#woptionBoxDummy").clone();
+            wbox.attr('ID', data[i].ID);
+            wbox.show();
+            $("#wishoptioncontainer").append(wbox);
+            $("#"+data[i].ID+" .woptionBoxHeadingBox").append(data[i].name);
+            $("#"+data[i].ID+" .description").prepend("Festwert MA-Bedarf: "+data[i].reqstaff+"<br/>");
+            $("#"+data[i].ID+" .description").append(data[i].description);
+        }
+        loadLinks();
+        drag();
+    })
+  };
+
+  // load links
+  function loadLinks(){
+    $.getJSON('/wishoptions/getlinksjson', function(data){
+      for(var i = 0; i < data.length; i++){
+    	    $('#'+data[i].wishoption+" .linkedevents ul").find(".placeholder").remove();
+            
+            $("<li></li>").html($('#event_'+data[i].event).text()+" [<a class=\"delLink\" href=\"#\">X</a>]").attr('id','event_'+data[i].event).appendTo($('#'+data[i].wishoption+" .linkedevents ul"));
+      }
+
+    });
+  }
+        
+	      // get data for change mode
+          $(".changeWoption").live('click', function(){
+              var wID = $(this).parent().parent().parent().attr('ID');
+              $.getJSON('/wishoptions/getwishoptionjson', {'ID':wID}, function(data){
+                  $("#"+wID).html("<input class=\"name\" type=\"text\" value=\""+data.name+"\"/>");
+                  $("#"+wID).append("<input class=\"reqstaff\" type=\"text\" value=\""+data.reqstaff+"\"/></br>");
+                  $("#"+wID).append("<span style=\"font-size: 10px; color: grey;\">Beschreibung:</span><br/>");
+                  $("#"+wID).append("<textarea class=\"description\" cols=\"34\" rows=\"4\">"+data.description+"</textarea>");
+                  $("#"+wID).append("<input class=\"save\" type=\"submit\" value=\"Speichern\"/>");
+                  $("#"+wID).append("<input class=\"cancel\"type=\"submit\" value=\"Abbrechen\"/>");
+              })
+              return false;
+          });
+
+          // save changed data
+          $(".save").live('click', function(){
+            var wID = $(this).parent().attr('ID');
+            var wName = $("#"+wID+" .name").val();
+            var wReqStaff = $("#"+wID+" .reqstaff").val();
+            var wDesc = $("#"+wID+" .description").val();
+             
+            $.getJSON('/wishoptions/savewishoptionjson',
+                    {'ID':wID,'name':wName,'reqstaff':wReqStaff, 'description':wDesc}, 
+                    function(data){
+            
+            $.getJSON('/wishoptions/getwishoptionjson',{'ID':wID}, function(data){
+                 wbox = $("#woptionBoxDummy").clone();
+                 wbox.attr('ID', data.ID);
+                 wbox.show();
+                 $("#"+data.ID).replaceWith(wbox);
+                 $("#"+data.ID+" .woptionBoxHeadingBox").append(data.name);
+                 $("#"+data.ID+" .description").prepend("Festwert MA-Bedarf: "+data.reqstaff+"<br/>");
+                 $("#"+data.ID+" .description").append(data.description);
+            })
+            drag();
+            });
+            
+          });
+          
+          // cancel changing data
+          $(".cancel").live('click', function(){
+        	  var wID = $(this).parent().attr('ID');
+        	  $.getJSON('/wishoptions/getwishoptionjson',{'ID':wID}, function(data){
+        	       wbox = $("#woptionBoxDummy").clone();
+        	       wbox.attr('ID', data.ID);
+        	       wbox.show();
+                   $("#"+data.ID).replaceWith(wbox);
+        	       $("#"+data.ID+" .woptionBoxHeadingBox").append(data.name);
+        	       $("#"+data.ID+" .description").prepend("Festwert MA-Bedarf: "+data.reqstaff+"<br/>");
+        	       $("#"+data.ID+" .description").append(data.description);
+        	       drag();
+         	   })
+             
+          });
+
+          // delete link
+          $(".delLink").live('click', function(data){
+              var ID = $(this).parent().attr('ID');
+              $.getJSON('/wishoptions/deletelinkjson', 
+                      {'event':$(this).parent().attr('ID').substr(6,$(this).parent().attr('ID').length), 'wishoption':$(this).parent().parent().parent().parent().attr('ID')},
+                      function(){
+                          if($('#'+ID).parent().find('li').size() < 2){
+                        	  $('#'+ID).parent().append("<li class=\"placeholder\"> <i>Noch keine Veranstaltung zugeordnet...</i></li>");
+                          }
+                          $('#'+ID).remove();
+
+                          }
+              );
+              return false;
+          });
+
+          // Drag
+          $("#events li").draggable({
+  			appendTo: "body",
+  			helper: "clone"
+  	      });
+
+
+          // Drop
+          function drag(){
+          $(".linkedevents ul").droppable({
+  		    //activeClass: "ui-state-default",
+  		    //hoverClass: "ui-state-hover",
+  		    //accept: ":not(.ui-sortable-helper)",
+  		    drop: function(event, ui) {
+  				$(this).find(".placeholder").remove();
+                if($(this).children().is("#"+ui.draggable.attr('id')) == false){
+                  $("<li></li>").html(ui.draggable.text()+" [<a class=\"delLink\" href=\"#\">X</a>]").attr('id',ui.draggable.attr('id')).appendTo(this);
+                  $.getJSON('/wishoptions/addlinkjson', 
+                        {'event':ui.draggable.attr('id').substr(6,ui.draggable.attr('id').length), 'wishoption':$(this).parent().parent().attr('ID')},
+                        function(){}
+                  );
+  			    }
+            }
+          })
+          };
+
+          // hide/show used events
+          $('#hideUsedEvents').click(function(){
+              
+});
+
+
+</script>
+
+
+<h2>W&uuml;nsche:</h2>
+<div id="wishoptioncontainer" style="width: 350px;">
+</div>
+
+
+<!-- Start woptionbox Dummy -->
+    <div ID="woptionBoxDummy" class="woptionBox" style="display: none;">
+    <div class="woptionBoxHeadingBox">
+    <a href="#"><img class="changeWoption" title="Wunsch bearbeiten" src="/images/bearb.gif"/></a>    
+    </div>
+
+    
+    <div class="description" style="color: grey;">
+    <span style="font-size: 10px;">Beschreibung:</span>
+    <br/>
+    </div>
+    <div class="linkedevents" style=""><ul>
+    <li class="placeholder"> <i>Noch keine Veranstaltung zugeordnet...</i></li>
+    </ul></div>
+    </div>
+<!-- End woptionbox Dummy -->
+
+
+<div style="position: fixed; top: 122px; left:550px; width: 450px; height: 400px; border: 1px solid #AAA;overflow: scroll;">
+<b>Veranstaltungen: (per Drag and Drop zuordnen...)</b>
+<br/>
+<input id="hideUsedEvents" type="checkbox"/> bereits verwendete Veranstaltungen ausblenden
+<br/>
+<ul id="events">
+<?php 
+foreach($this->events as $event){
+    echo "<li id=\"event_" . $event['ID'] . "\">".$event['name']." (".$event['reqstaff'].")</li>";
+}
+?>
+</ul>
+</div>

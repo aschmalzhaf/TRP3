@@ -1,0 +1,311 @@
+<?php $this->headScript()->appendFile('/scripts/sortable.js') ?>
+<?php echo $this->headScript(); ?>
+<script type="text/javascript">
+    $(function() {
+
+        $("document").ready(function() {
+
+            //initial load
+            $.ajax({
+                type: "POST",
+                data: "mode=all",
+                url: "/Eventshift/getevents",
+                success: function(data) {
+                    $("#shiftseventslist").html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Fehler! " + textStatus);
+                }
+            });
+
+            //clear form
+            function clearForm(form) {
+                // iterate over all of the inputs for the form
+                // element that was passed in
+                $(':input', form).each(function() {
+                    var type = this.type;
+                    var tag = this.tagName.toLowerCase(); // normalize case
+                    // it's ok to reset the value attr of text inputs,
+                    // password inputs, and textareas
+                    if (type == 'text' || type == 'password' || type == 'hidden' || tag == 'textarea')
+                        this.value = "";
+                    // checkboxes and radios need to have their checked state cleared
+                    // but should *not* have their 'value' changed
+                    else if (type == 'checkbox' || type == 'radio')
+                        this.checked = false;
+                    // select elements need to have their 'selectedIndex' property set to -1
+                    // (this works for both single and multiple select elements)
+                });
+
+            }
+
+            ;
+
+            //save data and load table
+            $("#send_button").click(function() {
+                //Save Data
+                $.ajax({
+                    type: "POST",
+                    url: "/Eventshift/index",
+                    data: "name=" + $("#form_name").attr("value")
+                            + "&locationid=" + $("#form_locationid").attr("value")
+                            + "&leadid=" + $("#form_leadid").attr("value"),
+                    error: function(data) {
+                        alert(data);
+                    },
+                    success: function(data) {
+                        clearForm("#eventform");
+                        //Reload Table
+                        $.ajax({
+                            type: "POST",
+                            url: "/Eventshift/getevents",
+                            data: "mode=all",
+                            success: function(data) {
+                                $("#shiftseventslist").html(data);
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert("Fehler! " + textStatus);
+                            }
+
+                        });
+                    }
+                });
+                return false;
+            });
+
+
+            //hide full events
+            $("#hidefullevents").change(function() {
+                if ($("#hidefullevents:checked").size() == 1) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Eventshift/getevents",
+                        data: "mode=notfull",
+                        success: function(data) {
+                            $("#shiftseventslist").html(data);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            alert("Fehler! " + textStatus);
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Eventshift/getevents",
+                        data: "mode=all",
+                        success: function(data) {
+                            $("#shiftseventslist").html(data);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            alert("Fehler! " + textStatus);
+                        }
+                    });
+                }
+
+            });
+
+
+            //special location panel
+            $("#locationpanelbutton").click(function() {
+                $("#locationpanel").css("display", "");
+                $("#overlay").css("display", "");
+
+            });
+
+            $(".locationvaluebutton").click(function(data) {
+                $("#form_locationid").val($(this).attr("id"));
+                if ($(this).attr("id") != "") {
+                    $("#form_location").val($(this).text());
+                } else {
+                    $("#form_location").val("");
+                }
+
+                $("#locationpanel").css("display", "none");
+                $("#overlay").css("display", "none");
+
+            });
+
+            //special lead panel
+            $("#leadpanelbutton").click(function() {
+                $("#leadpanel").css("display", "");
+                $("#overlay").css("display", "");
+
+            });
+
+            $(".leadvaluebutton").click(function(data) {
+                $("#form_leadid").val($(this).attr("id"));
+                if ($(this).attr("id") != "") {
+                    $("#form_lead").val($(this).text());
+                } else {
+                    $("#form_lead").val("");
+                }
+
+                $("#leadpanel").css("display", "none");
+                $("#overlay").css("display", "none");
+
+            });
+
+            $("#filter").keyup(function() {
+                $(".eventbox").show();
+                if ($("#filter").val() != "") {
+                    $(".eventbox").filter(
+                            function(index) {
+                                if ($(this).children().eq(1).text().toLowerCase().indexOf($("#filter").val().toLowerCase()) == -1) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                                ;
+                            }).hide();
+                }
+                ;
+            });
+
+            $(window).scroll(function (dataObject) {
+                if($(window).scrollTop() > 166){
+                    $("#eventsearchpanel").css("position","fixed");
+                }else if($(window).scrollTop() <= 166){
+                    $("#eventsearchpanel").css("position","static");
+                }
+            });
+           //ready to start...
+        });
+
+    });
+
+</script>
+<style type="text/css">
+    <!--
+
+    #eventinputpanel {
+        float: left;
+        background: #EEE;
+        width: 95%;
+        border: solid 2px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    #eventsearchpanel {
+        float: left;
+        background: #EE5;
+        width: 95%;
+        border: solid 2px;
+        padding: 10px;
+        margin-bottom: 10px;
+        top: 0px;
+    }
+
+    .eventformlabel {
+        margin-left: 2em;
+        padding-right: 1em;
+        float: left;
+    }
+
+    .eventinputbox {
+        float: left;
+    }
+
+    .eventbox {
+        float: left;
+        width: 90%;
+        border: solid 2px;
+        padding: 5px;
+        margin-bottom: 10px;
+        margin-left: 25px;
+    }
+
+    .eventheading {
+        font-size: large;
+    }
+
+    .shiftbox {
+        float: left;
+        width: 90%;
+        border: solid 1px;
+        padding: 5px;
+        margin: 5px;
+        margin-left: 50px;
+        background-color: white;
+    }
+
+    .shifttabheading {
+        background: #CCC;
+        width: 5em;
+    }
+
+    -->
+</style>
+
+
+
+<!-- start normal site -->
+
+<div id="eventinputpanel">
+
+    <form id="eventform" action="" method="get" accept-charset="UTF-8">
+        <div class="eventinputbox">
+            <label for="form_name" class="eventformlabel">Name<span class="reqstar">*</span></label>
+            <input id="form_name" type="text" name="form_name"/>
+        </div>
+        <div class="eventinputbox">
+            <label for="form_location" class="eventformlabel">Ort</label>
+            <input id="form_location" type="text" name="form_location" disabled/>
+            <input id="form_locationid" type="hidden" name="form_locationid" value=""/>
+            <a href="#" id="locationpanelbutton"><img src="/images/sjgo.gif"/></a>
+        </div>
+
+        <div class="eventinputbox">
+            <label for="form_lead" class="eventformlabel">Verantwortlich</label>
+            <input id="form_lead" type="text" name="form_lead" disabled/>
+            <input id="form_leadid" type="hidden" name="form_leadid" value=""/>
+            <a href="#" id="leadpanelbutton"><img src="/images/sjgo.gif"/></a>
+        </div>
+
+        <div class="eventinputbox">
+            <label for="form_lead" class="eventformlabel">&nbsp;</label>
+            <input id="send_button" name="send_button" type="submit" value="Veranstaltung speichern"/>
+        </div>
+    </form>
+</div>
+
+<div id="eventsearchpanel">
+    <form>
+        Filter<input type="text" id="filter"/>
+        Volle Events ausblenden<input type="checkbox" id="hidefullevents"/>
+    </form>
+    <div>
+<span style="font-size: 1.5em; font-weight: bold;">
+<a href="#num">#</a> <a href="#a">A</a> <a href="#b">B</a> <a href="#c">C</a> <a href="#d">D</a> <a href="#e">E</a> <a
+        href="#f">F</a>
+<a href="#g">G</a> <a href="#h">H</a> <a href="#i">I</a> <a href="#j">J</a> <a href="#k">K</a> <a href="#l">L</a>
+<a href="#m">M</a> <a href="#n">N</a> <a href="#o">O</a> <a href="#p">P</a> <a href="#q">Q</a> <a href="#r">R</a>
+<a href="#s">S</a> <a href="#t">T</a> <a href="#u">U</a> <a href="#v">V</a> <a href="#w">W</a> <a href="#x">X</a>
+<a href="#y">Y</a> <a href="#z">Z</a></span>
+    </div>
+</div>
+
+<div id="shiftseventslist">
+</div>
+
+<br><br>
+
+<!--  start selection boxes -->
+<div id="overlay" style="display:none;"></div>
+
+<div id="locationpanel" class="toppanel" style="display:none;">
+    <h2>Bitte Ort ausw&auml;hlen:</h2>
+    <br>
+    <strong><a href="" id="" class="locationvaluebutton">KEIN EINTRAG</a></strong>
+    <br>
+    <?php echo $this->locationopts;  ?>
+</div>
+
+<div id="leadpanel" class="toppanel" style="display:none;">
+    <h2>Bitte Verantwortlichen ausw&auml;hlen:</h2>
+    <br>
+    <strong><a href="" id="" class="leadvaluebutton">KEIN EINTRAG</a></strong>
+    <br>
+    <?php echo $this->leadopts;  ?>
+</div>
+

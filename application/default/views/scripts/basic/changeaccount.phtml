@@ -1,0 +1,435 @@
+<script src="/scripts/jquery_validate.js"> </script>
+<script type="text/javascript">    
+
+    $("document").ready(function(){
+        
+        //Speichern eines Feldes beim Verlassen des Input-Feldes
+        //wenn es sich geändert hat.
+        //INPUTs
+        $('#corrform input[type!="checkbox"]').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        
+        $('#corrform input[type!="checkbox"]').blur(function(){
+            var url;
+            if($(this).parents('div[id="teennight-data"]').size() == 1){
+                url = '/Apibasic/updateaccount';
+            }else{
+                url = '/Apibasic/updatejufadata';  
+            }
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {"field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //CHECKBOXes
+        $('#corrform input[type="checkbox"]').click(function(){
+            var oldval;
+            var newval;
+            var url;
+            if($(this).parents('div[id="teennight-data"]').size() == 1){
+                url = '/Apibasic/updateaccount';
+            }else{
+                url = '/Apibasic/updatejufadata';  
+            }
+            
+            if($(this).attr('checked') == "checked"){
+                oldval = 0;
+                newval = 1;
+            }else{
+                oldval = 1;
+                newval = 0;
+            }
+            $.post(url,
+            {"field":$(this).attr('name'),
+                "oldvalue":oldval,
+                "newvalue":newval});
+            getMessages();
+        });
+        //SELECTs
+        $('#corrform select').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        $('#corrform select').blur(function(){
+            var url;
+            if($(this).parents('div[id="teennight-data"]').size() == 1){
+                url = '/Apibasic/updateaccount';
+            }else{
+                url = '/Apibasic/updatejufadata';  
+            }
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {"field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //TEXTAREAs
+        $('#corrform textarea').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        $('#corrform textarea').blur(function(){
+            var url;
+            if($(this).parents('div[id="teennight-data"]').size() == 1){
+                url = '/Apibasic/updateaccount';
+            }else{
+                url = '/Apibasic/updatejufadata';  
+            }
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {"field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //RADIOs
+        $('#corrform input[type="radio"]').click(function(){
+            var newval;
+            var url;
+            if($(this).parents('div[id="teennight-data"]').size() == 1){
+                url = '/Apibasic/updateaccount';
+            }else{
+                url = '/Apibasic/updatejufadata';  
+            }
+            newval = $(this).val();
+            $.post(url,
+            {"field":$(this).attr('name'),
+                "oldvalue":"",
+                "newvalue":newval});
+            getMessages();
+        });
+        
+        
+        
+        
+        //validation...
+        $.validator.addMethod("customdate",function(value, element){
+            if(value.length == 0){
+                return true;
+            }
+            var dateparts = value.split(".");
+            //check length of parts
+            if(dateparts[0].length != 2 
+                || dateparts[1].length != 2 
+                || dateparts[2].length != 4 
+                || dateparts.length > 3){
+                return false;
+            }
+            //check value ranges
+            if(dateparts[0] < 1 || dateparts[0] > 31 
+                || dateparts[1] < 1 || dateparts[1] > 12 
+                || dateparts[2] < 0){
+                return false;
+            }
+            //else
+            return true;
+        }, "Datum nicht korrekt!");
+		
+        $("#corrform").validate({
+            rules: {
+                fname: {
+                    required: true },
+                lname: {
+                    required: true },
+                birthday: {
+                    required: true,
+                    customdate: true },
+                mphone: {
+                    required: false },
+                city: {
+                    required: true },
+                kv: {
+                    required: false },
+                email: {
+                    required: true,
+                    email: true		}
+            },
+            messages: {
+                fname: {
+                    required: "Name notwendig!" },
+                lname: {
+                    required: "Name notwendig!" },
+                birthday: {
+                    required: "Geburtstag notwendig!"},
+                city: {
+                    required: "Ort notwendig!"},
+                email: {
+                    required: "eMail-Adresse notwendig!",
+                    email: "eMail-Adresse ung&uuml;ltig!" }		
+            }
+				
+        });
+
+        // control JUFA panel
+        $("#jufa").change(function(){
+            if($("#jufa:checked").val() != null){
+                $("#jufapanel").show('blind');
+            }else{
+                $("#jufapanel").hide('blind');
+                $("#jufa-data input").removeProp('checked');
+            }
+        });
+    });
+</script>
+
+<form class="form-horizontal" id="corrform"  >
+    <div id="teennight-data">
+        <legend>Persönliche Daten</legend>
+
+        <div class="control-group">
+            <label for="form_fname" class="control-label">Vorname<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input class="input-large" id="form_fname" type="text" name="fname" value="<?php echo $this->usrdata['fname'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_lname" class="control-label">Nachname<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input id="form_lname" type="text" name="lname" value="<?php echo $this->usrdata['lname'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_street" class="control-label">Stra&szlig;e/Hausnr.</label>
+            <div class="controls trpichange">
+                <input id="form_street" type="text" name="street" value="<?php echo $this->usrdata['street'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_city" class="control-label">Ort<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input id="form_city" type="text" name="city" value="<?php echo $this->usrdata['city'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_birthday" class="control-label">Geburtstag<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input id="form_birthday" type="text" name="birthday" value="<?php echo $this->usrdata['birthday'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_email" class="control-label">E-Mail<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input id="form_email" type="text" name="email" value="<?php echo $this->usrdata['email'] ?>"/>	
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_mphone" class="control-label">Handynummer<span class="reqstar">*</span></label>
+            <div class="controls trpichange">
+                <input id="form_mphone" type="text" name="mphone" value="<?php echo $this->usrdata['mphone'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_phone" class="control-label">Festnetz</label>
+            <div class="controls trpichange">
+                <input id="form_phone" type="text" name="phone" value="<?php echo $this->usrdata['phone'] ?>"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_kv" class="control-label">KV</label>
+            <div class="controls trpichange">
+                <select size="1" id="form_kv" name="kv">
+                    <?php echo $this->kvopts; ?>
+                </select>
+            </div>     
+        </div> 
+
+        <legend>Teennight-relevantes Zeugs</legend>
+        <div class="control-group">
+            <label for="form_exp" class="control-label">Teennight-Erfahrungen</label>
+            <div class="controls trpichange">
+                <textarea class="input-large" id="form_exp" name="exp"><?php echo $this->usrdata['exp'] ?></textarea>
+                <p class="help-block">Beispiel: Erfahren im Klettern</p>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_bus" class="control-label">Ich kann Bussle fahren</label>
+            <div class="controls trpichange">
+                <input id="form_bus" type="checkbox" name="bus" value="true" <?php
+                    if ($this->usrdata['bus'] != 0) {
+                        echo "checked";
+                    }
+                    ?>>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_climbing" class="control-label">Ich habe Klettererfahrung</label>
+            <div class="controls trpichange">
+                <input id="form_climbing" type="checkbox" name="climbing" value="true" <?php
+                       if ($this->usrdata['climbing'] != 0) {
+                           echo "checked";
+                       }
+                    ?>>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="form_lifeguard" class="control-label">Ich bin Bademeister / Rettungsschwimmer</label>
+            <div class="controls trpichange">
+                <input id="form_lifeguard" type="checkbox" name="lifeguard" value="true" <?php
+                       if ($this->usrdata['lifeguard'] != 0) {
+                           echo "checked";
+                       }
+                    ?>>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label for="form_medic" class="control-label">Bin Arzt / Krankenschwester / Sanitäter /...</label>
+            <div class="controls trpichange">
+                <input id="form_medic" type="checkbox" name="medic" value="true" <?php
+                       if ($this->usrdata['medic'] != 0) {
+                           echo "checked";
+                       }
+                    ?>>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Sonstiges/Anmerkungen<br/>(Teennight)</label>
+            <div class="controls trpichange">
+                <textarea id="form_usrnote" name="usrnote"  cols="20" rows="2"><?php echo $this->usrdata['usrnote'] ?></textarea>
+                <p class="help-block">Beispiel: Wasserallergie</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JUFA DATEN -->
+    <legend>JuFa</legend>
+    <div id="jufa-data">
+        <div class="control-group">
+            <label for="jufa" class="control-label"><b>Ich bleibe <br/>auch zum JuFa</b></label>
+            <div class="controls trpichange">
+                <input id="jufa" type="checkbox" name="jufa" class="shiftselection" value="true" <?php
+                       if ($this->participantdata['jufa'] != "") {
+                           echo "checked";
+                       }
+                    ?>>
+            </div>
+        </div>
+
+        <?php if ($this->participantdata['jufa'] == "jufa") { ?>
+            <div id="jufapanel">
+
+            <?php } else { ?>
+                <div id="jufapanel" style="display:none; ">
+                <?php } ?>
+
+                <div class="control-group">
+                    <label class="control-label">Wie lange...?</label>
+                    <div class="controls">
+                        <label class="radio">
+                            <input type="radio" name="art" class="shiftselection" value="jufa" 
+                            <?php
+                            if ($this->participantdata['art'] == "jufa" || $this->participantdata['art'] == "") {
+                                echo "checked";
+                            }
+                            ?>>Ich bleibe zum ganzen JuFa (Samstag und Sonntag)</label>
+                        <label class="radio">
+                            <input type="radio" name="art" class="shiftselection" value="tg_sa" <?php
+                                   if ($this->participantdata['art'] == "tg_sa") {
+                                       echo "checked";
+                                   }
+                            ?>>Ich bleibe nur samstags</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Übernachtung</label>
+                    <div class="controls">
+                        <label class="radio">
+                            <input type="radio" name="schlafen" class="shiftselection" value="masse" <?php
+                                   if ($this->participantdata['schlafen'] == "masse") {
+                                       echo "checked";
+                                   }
+                            ?>>im Massenlager</label>
+
+                        <label class="radio">
+                            <input type="radio" name="schlafen" class="shiftselection" value="zelt" <?php
+                                   if ($this->participantdata['schlafen'] == "zelt") {
+                                       echo "checked";
+                                   }
+                            ?>>im eigenen Zelt</label>
+                        <label class="radio">
+                            <input type="radio" name="schlafen" class="shiftselection" value="gzelt" <?php
+                                   if ($this->participantdata['schlafen'] == "gzelt") {
+                                       echo "checked";
+                                   }
+                            ?>>in SWD Gruppenzelten</label>
+                        <label class="radio">
+                            <input type="radio" name="schlafen" class="shiftselection" value="privat" <?php
+                                   if ($this->participantdata['schlafen'] == "privat") {
+                                       echo "checked";
+                                   }
+                            ?>>Privatunterkunft</label>
+                        <label for="form_phone" class="radio">
+                            <?php if ($this->participantdata['schlafen'] == "zimmer") { ?><input type="radio" name="schlafen" class="shiftselection" value="zimmer" <?php
+                            if ($this->participantdata['schlafen'] == "zimmer") {
+                                echo "checked";
+                            }
+                                ?>>Zimmer</label>
+                            <label class="radio"> <?php } //Nur anzeigen, wenn "Zimmer" eingetragen wurde                                    ?> 
+                            <input type="radio" name="schlafen" class="shiftselection" value="wohnmobil" <?php
+                               if ($this->participantdata['schlafen'] == "wohnmobil") {
+                                   echo "checked";
+                               }
+                            ?>>Wohnmobil</label>
+                        <label class="radio">
+                            <input type="radio" name="schlafen" class="shiftselection" value="keine" <?php
+                                   if ($this->participantdata['schlafen'] == "keine" || $this->participantdata['schlafen'] == "") {
+                                       echo "checked";
+                                   }
+                            ?>>keine</label>
+                    </div>
+                </div>
+
+                <?php
+                $samstag = Array();
+                $samstag = explode(': ', $this->participantdata['samstag']);
+                ?>
+                <div class="control-group">
+                    <label class="control-label">Samstag</label>
+
+                    <div class="controls">
+                        <label class="radio">
+                            <input type="radio" name="samstag" class="shiftselection" value="Kanufahren" <?php
+                if ($this->participantdata['samstag'] == "Kanufahren") {
+                    echo "checked";
+                }
+                ?>>Kanufahren [Teilnehmerbeitrag 5€]</label>
+                        <label class="radio">
+                            <input type="radio" name="samstag" class="shiftselection" value="nichts" <?php
+                                   if ($this->participantdata['samstag'] == "nichts" || $this->participantdata['samstag'] == "") {
+                                       echo "checked";
+                                   }
+                ?>>freier Samstag / Sportturniere [Für Sportturniere bitte separat anmelden!]</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Sonstiges/ Anmerkungen (JuFa)</label>
+                    <div class="controls trpichange">
+                        <textarea id="form_jufanote" name="kommentar"><?php echo $this->participantdata['kommentar'] ?></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+</form>	

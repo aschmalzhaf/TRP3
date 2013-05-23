@@ -1,0 +1,201 @@
+<?php
+if (!isset($this->cols))
+    $this->cols = Array();
+echo $this->headScript()->appendFile('/scripts/sortable.js');
+?>
+
+<script type="text/javascript">
+$(function() {
+        //----- DIREKTE AUFRUFE ----- //
+        getColumns();
+        //Automatisches Suchen, wenn Parameter von außen vorbelegt wurden
+        $(document).bind('colsLoaded',function(){
+            $.each($('#searchform input'), function(index, value){
+                if($(value).val() != ""){
+                    getDataFromBackend();
+
+                };
+            });     
+        })
+        
+        // ----- CLICK und PRESS HANDLER ----- //
+        //"Felder leeren" Funktion für die Suchparameter
+        $("#clearfields").click(function() {
+            $("#searchparameters input").val("");
+            $("#resulttable").html("");
+            $("#resultcount").html("");
+            return false;
+        });
+
+        //"Alle Auswählen" Funktion für Spaltenauswahl
+        $("#selectall").click(function() {
+            $("#columnlist input:checkbox").attr("checked","checked");
+            return false;
+        });
+        
+        //"Alle Abwählen" Funktion für Spaltenauswahl
+        $("#deselectall").click(function() {
+            $("#columnlist input:checkbox").removeProp("checked");
+            return false;
+        });
+
+        //"Suchen" Funktion auf Button binden (und and Enter-Press)
+        $('#show').click(function(){getDataFromBackend()});
+        $('#searchform').submit(function(){getDataFromBackend()});
+        
+        $('#csvdownload').click(function(){
+            var url;
+            var requestedColumns = new Array();
+            $.each($("#columnlist input:checked"), function(key, data){
+                requestedColumns[requestedColumns.length] = $(data).attr('ID');
+            });
+
+            var parameter = [{"ID":$('input[name="ID"]').val()},
+            {"fname":$('input[name="fname"]').val()},
+            {"lname":$('input[name="lname"]').val()},
+            {"addedby":$('input[name="addedby"]').val()},
+            {"kv":$('input[name="kv"]').val()},
+            {"city":$('input[name="city"]').val()},
+            {"locked":$('input[name="locked"]').val()}];
+            url = "/Staff/getsearchresultcsv?";
+            url = url + $.param({ "columns": requestedColumns,
+                "parameter": parameter });
+            window.location.href=url;
+        });
+        
+
+        // ----- FUNKTIONEN ----- //
+
+        //Hole Daten ab und baue Ergebnistabelle auf      
+        function getDataFromBackend(){
+            var requestedColumns = new Array();
+            $.each($("#columnlist input:checked"), function(key, data){
+                requestedColumns[requestedColumns.length] = $(data).attr('ID');
+            });
+
+            var parameter = [{"ID":$('input[name="ID"]').val()},
+            {"fname":$('input[name="fname"]').val()},
+            {"lname":$('input[name="lname"]').val()},
+            {"addedby":$('input[name="addedby"]').val()},
+            {"kv":$('input[name="kv"]').val()},
+            {"city":$('input[name="city"]').val()},
+            {"locked":$('input[name="locked"]').val()}];
+            
+            $.getJSON("/Staff/getsearchresult", 
+                {   "columns": requestedColumns,
+                "parameter": parameter }, 
+
+                function(data){
+                    $('#resultcount').html(data['data'].length);
+                    tableHtml = buildDataTable(data['columns'], data['data']);
+                    $('#resulttable').html(tableHtml);
+                    sortables_init();
+                });
+        } 
+
+        //Tabelle aufbauen anhand der Spaltennamen und Spaltendaten
+        function buildDataTable(columnNames,columnData){
+            //SpaltenHeader
+            html = "<table id=\"stafftab\" class=\"sortable\"><tr class=\"fixedheader\">";
+            $.each(columnNames, function(key, value){
+                html = html + "<th>" + $('input[id='+value+']').parent().text() + "</th>";                  
+            });
+
+            html = html + "</tr>";
+
+            //tatsächliche Daten
+            $.each(columnData, function(key, dataSet){
+                html = html + "<tr>";
+                $.each(columnNames, function(key, columnName){
+                    html = html + "<td>";
+                    if(columnName == "ID"){
+                        html = html + "<a href=\"/Captteam/staffdatacheck/" 
+                        + dataSet[columnName] 
+                        + "\" target=\"_blank\">" + dataSet[columnName]  + "</a>"; 
+                    }else{
+                        html = html + dataSet[columnName];
+                    }
+                    html = html + "</td>"; 
+                });
+                html = html + "</tr>";
+            });
+            //Tabellenabschluss
+            html = html + "</table>";
+            return html;    
+        }
+        
+        //Holt die Spaltennamen, technischen Namen vom Backend
+        function getColumns(){
+            $.getJSON("/Staff/getpossiblecolumns",
+                {},
+                function(data){
+                    var optHtml = "";
+                    $.each(data, function(key, column){
+                        optHtml = optHtml + "<label class=\"checkbox\">";
+                        optHtml = optHtml + "<input id=\""+ column['ID']+"\" type=\"checkbox\"";
+                        if(column['selected'] == "true"){
+                            optHtml = optHtml + " checked ";
+                        }
+                        optHtml = optHtml + ">" + column['columnname'] + "</label>";
+                    });
+                    $('#columnlist').html(optHtml);
+
+                    $(document).trigger('colsLoaded');
+                })
+        };
+    });
+</script>
+
+<form id="searchform" onsubmit="return false;">
+    <div id="searchparameters" class="row-fluid">
+        <div class="span4">
+            <input type="text" name="ID" placeholder="ID" value="<?php echo $this->prefillValues['ID'];?>"/>
+            <input type="text" name="fname" placeholder="Vorname" value="<?php echo $this->prefillValues['fname'];?>"/> 
+            <input type="text" name="lname" placeholder="Nachname" value="<?php echo $this->prefillValues['lname'];?>" />
+        </div>
+        <div class="span4">
+            <input type="text" name="addedby" placeholder="Hinzugefügt von" value="<?php echo $this->prefillValues['addedby'];?>" />
+            <input type="text" name="kv" placeholder="KV-ID" value="<?php echo $this->prefillValues['kv'];?>" />
+        </div>
+        <div class="span4">
+            <input type="text" name="city" placeholder="Ort" value="<?php echo $this->prefillValues['city'];?>" />
+            <input type="text" name="locked" placeholder="ausgebucht" value="<?php echo $this->prefillValues['locked'];?>" />
+        </div>
+    </div>
+    <div class="row-fluid">
+        <button type="submit" class="btn btn-primary" name="show" id="show">Daten anzeigen</button> 
+        <button type="submit" class="btn" id="clearfields">Felder leeren</button>
+    </div>
+</form>
+
+
+<div class="row-fluid">
+    <div class="span12">
+        <div id="datatable" style="width:100%; background: #eee; border-radius: 3px; padding: 5px; margin-top: 15px;">
+            <div class="btn-group right">
+                <a id="csvdownload" class="btn btn-mini" data-toggle="modal" href="#" ><i class="icon-download"></i></a>
+                <a class="btn btn-mini" data-toggle="modal" href="#myModal" ><i class="icon-cog"></i></a>
+                <span style="color: #ccc; padding-left: 5px;">Anzahl der Ergebnisse: <span id="resultcount"></span></span>
+            </div>
+            <div id="resulttable">
+                <!-- Daten werden per AJAX Aufruf abgeholt -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup für in der Tabelle angezeigte Spalten -->
+<div class="modal fade hide" id="myModal">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Spaltenauswahl</h3>
+    </div>
+    <div id="columnlist" class="modal-body">
+        <!-- Auflistung der Spalten -->
+    </div>
+    <div class="modal-footer">
+        <a href="#" id="selectall" class="btn">Alle auswählen</a>
+        <a href="#" id="deselectall" class="btn">Alle abwählen</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Schließen</a>
+    </div>
+</div>

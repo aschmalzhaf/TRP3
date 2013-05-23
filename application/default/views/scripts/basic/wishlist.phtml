@@ -1,0 +1,191 @@
+<script type="text/javascript">
+$(function() {
+
+    $("document").ready(function(){
+
+        loadWishes();
+        loadDescriptions();
+        
+            // handler for deleting wishes
+            $("#wishes li a").live('click', function(){
+                $.post('/Apibasic/deletewishjson',{'ID':$(this).attr('ID')}, function(){
+                    loadWishes();     
+                    getMessages();
+                } );
+                
+                return false;
+            });
+
+            // handler for adding wishes
+            // select wish via clicking on an cloud tag
+            $(".Zend_Tag_Cloud li a").live('click',function(){
+                var wishName = $(this).text();
+                $.post('/Apibasic/addwishjson', {'ID':$(this).attr('ID')}, function(){
+                    loadWishes();     
+                    getMessages();
+                } );
+                return false;
+            });
+            
+            
+            // function to load wishes
+            function loadWishes(){
+                $.getJSON('/Apibasic/getwishesjson', function(data){
+                    $("#wishes").empty();
+                    if(data == null){
+                        $("#wishes").html("<strong><i>Bisher keine Wünsche ausgewählt!</i></strong>");
+                        $("#wishcount").text(3);
+                    }else{ 
+                        for(var i = 0; i < data.length; i++){
+                            if(data[i].ID != 0){
+                                $("#wishes").append("<li>"+data[i].name+" <a title=\"Wunsch löschen\" href=\"#\" id=\""+data[i].ID+"\"><img src=\"/images/trash.jpg\"/></a></li>");
+                            }
+                        }
+                        $("#wishcount").text(3-$("#wishes li").length);
+                    }
+                    
+                }
+                )};
+                
+
+                
+            // function to load descriptions of wishes
+            function loadDescriptions(){
+                $.getJSON('/Apibasic/getwishdescriptionsjson', function(data){
+                    var descArray = new Array();
+
+                    $(data).each(function(key, val){
+                        descArray[$(val).attr('id')] = val;
+                    });
+                    $('.Zend_Tag_Cloud a').each(function(key, val){
+                        if(descArray[val.id] != null){
+                            $(val).popover({
+                                title: descArray[val.id].name,
+                                content: descArray[val.id].description,
+                                delay: { show: 0, hide: 40 }
+                            });
+                        }
+                        
+                    });
+                })
+            };
+        });	
+});
+</script>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span9">
+            <?php
+//Check if user is blocked all night...
+            if ($this->blocked == 0) {
+                ?>
+
+
+                <h3>Deine Wünsche:</h3>
+                <ul id="wishes" style="list-style-type: none; font-size: 12pt;">
+                </ul>
+
+                <span style="color: grey;">Du kannst noch <span id="wishcount" style="font-weight: bolder; font-size: 13pt;">3</span> Aktionen auswählen, an denen du gerne mitarbeiten möchtest.</span>
+
+                <br>
+                <div style="padding-top: 40px;">
+                    <h3>Wähle deine wichtigsten drei Wünsche aus...</h3>
+                    <p>...du wählst deine Wünsche, indem du sie anklickst.
+                        Du willst mehr wissen? Einfach auf einen Wunsch deuten für mehr Infos...</p>
+                    </div>
+
+                    <div id="" style="padding-top: 30px; text-align: center; float:left;">
+                        <ul id="tabs" class="nav nav-tabs">
+                            <?php
+                            if(isset($this->wishClouds)){
+                                foreach ($this->wishClouds as $cloudName => $cloud) {
+                            //echo "<li><a href=\"#" . $cloudName . "\"><span>" . $cloudName . "</span></a></li> \n";
+                                    echo "<li><a href=\"#" . $cloudName . "\" data-toggle=\"tab\">" . $cloudName . "</a></li>";
+                                }
+                            }
+                            
+                            ?>
+                        </ul>
+                        <div class="tab-content">
+                            <?php
+                            if(isset($this->wishClouds)){
+                                foreach ($this->wishClouds as $cloudName => $cloud) {
+                                    echo "<div class=\"tab-pane\" style=\"height: 300px;\" id=\"" . $cloudName . "\"> \n";
+                                    echo $cloud;
+                                    echo "</div> \n";
+                                }
+                            }
+                            ?>
+                        </div>
+                    </div>  	
+                    <script>
+                    $(function () {
+                        $('#tabs a:first').tab('show');
+                    })
+                    </script>
+
+
+
+
+
+                    <?php
+                } else {
+                    ?>
+
+                    <h2>Du wurdest die komplette Nacht  für die Aktion <u><?php echo $this->sjob_name ?></u> eingetragen.</h2>
+                    <br><br>
+                    Diese Aktion geht die ganze Nacht. 
+                    <br><br>
+                    Falls uns hierbei ein Fehler unterlaufen sein sollte, 
+                    <br><br>
+                    wende dich bitte an 
+                    <a href="mailto:<?php echo $this->addedby_email ?>"><?php echo $this->addedby_name; ?></a>.
+
+                    <?php
+                };
+                ?>
+
+            </div>
+
+            <div class="span3">
+                <div>
+                    <div style="background: #8F8 url(../images/IBbody.jpg); width: 250px;">
+                        <img src="../images/IBtop.jpg"></img>
+                        <div style="text-align: center; padding-left: 30px; margin-top: -10px; padding-right: 10px; ">
+                            <span style="color: white; font-size: 14pt;">Daten schon kontrolliert?<br>
+                                <b>Nein?</b></span>
+                                <br/>
+                                <span style="color: white; font-size: 12pt;"><a href="/Basic/changeaccount">Dann gleich hier tun!</a></span>	
+                            </div>
+                            <img src="../images/IBbottom.jpg"></img>
+                        </div>
+
+                        <?php if ($this->sjob_name != "") { ?>
+                        <div style="background: #8F8 url(../images/IBbody.jpg); width: 250px; ">
+                            <img src="../images/IBtop.jpg"></img>
+                            <div style="text-align: center; padding-left: 30px; margin-top: -10px; padding-right: 10px; ">
+                                <span style="color: white; font-size: 14pt;"><i>Bitte beachte:</i><br>
+                                    Du wurdest f&uuml;r folgende spezielle Aufgabe angefragt:
+                                    <br/>
+                                    <b>  <?php echo $this->sjob_name; ?> </b>
+                                </span>
+                                <br/>
+                                <!-- Check if user is blocked all night...  -->
+                                <?php if ($this->blocked == 0) { ?>
+
+                                <span style="color: white; font-size: 10pt;">
+                                    Du kannst trotzdem W&uuml;nsche eingeben.<br>
+                                    wir setzen diese nat&uuml;rlich - soweit m&ouml;glich - um.</span>  
+                                    <?php } ?>
+                                </div>
+                                <img src="../images/IBbottom.jpg"></img>
+                            </div>
+                            <?php } ?>	
+                        </div>
+                    </div>   
+
+
+
+                </div>
+            </div>

@@ -1,0 +1,229 @@
+<?php 
+$this->headScript()->appendFile('/scripts/jquery_validate.js');
+echo $this->headScript();
+?>
+
+<script type="text/javascript">
+$(function() {
+
+	$("document").ready(function(){
+
+		
+		
+		//vars
+		var Participantid = "<?php echo $this->Participantdata['ID'];?>";
+		
+		//validation...
+		$.validator.addMethod("customdate",function(value, element){
+			if(value.length == 0){
+				return true;
+			}
+			
+			var dateparts = value.split(".");
+			//check length of parts
+			if(dateparts[0].length != 2 
+					|| dateparts[1].length != 2 
+					|| dateparts[2].length != 4 
+					|| dateparts.length > 3){
+				return false;
+			}
+			//check value ranges
+			if(dateparts[0] < 1 || dateparts[0] > 31 
+					|| dateparts[1] < 1 || dateparts[1] > 12 
+					|| dateparts[2] < 0){
+				return false;
+			}
+			//else
+			return true;
+		}, "Datum nicht korrekt!");
+		
+		$("#corrform").validate({
+			rules: {
+				Name: {
+					required: true },
+				geb: {
+					customdate: true }
+
+			},
+			messages: {
+				Name: {
+					required: "Name notwendig!" }	
+			}
+				
+		});
+
+
+		
+
+		//initial load
+		loadposshifts();
+
+		$(".shiftselection").click(function(){
+			loadposshifts();
+		});
+
+
+		//build filter
+		$("#filter").keyup(function(){
+			$("#possibleshifts option").remove();
+			$("#possibleshifts").append($("#possibleshiftsclone option").clone());
+			if($("#filter").val()!=""){
+				$("#possibleshifts option").filter(function(index){
+
+					if($(this).text().toLowerCase().indexOf($("#filter").val().toLowerCase()) == -1){
+						return true;	
+					}else{
+						return false;
+					};
+				}).remove();
+			};
+		});
+		
+
+		
+
+		
+	//ready to start...	
+	});
+	
+});
+
+</script>
+<div style="float:left; width: 550px;">
+	<form id="corrform" action="/Participants/add" method="post" accept-charset="utf-8">
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_fname" class="formlabel">Vorname</label>
+				<input id="form_fname" type="text" name="Vorname" value="<?php echo $this->Participantdata['Vorname']?>"/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_lname" class="formlabel">Nachname</label>
+				<input id="form_lname" type="text" name="Name" value="<?php echo $this->Participantdata['Name']?>"/>
+			</div> 
+			<div class="formexbox">
+				<label class="form_example">ggf. Jugendarbeit</label>
+			</div> 
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_street" class="formlabel">Stra&szlig;e/Hausnr.</label>
+				<input id="form_street" type="text" name="Strasse" value="<?php echo $this->Participantdata['Strasse']?>"/>
+			</div>  
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_city" class="formlabel">PLZ</label>
+				<input id="form_city" type="text" name="plz" value="<?php echo $this->Participantdata['plz']?>"/>
+			</div> 
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_city" class="formlabel">Ort</label>
+				<input id="form_city" type="text" name="Ort" value="<?php echo $this->Participantdata['Ort']?>"/>
+			</div> 
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_birthday" class="formlabel">Geburtstag</label>
+				<input id="form_birthday" type="text" name="geb" value="<?php echo $this->Participantdata['geb']?>"/>
+			</div> 
+			<div class="formexbox">
+				<label class="form_example">Beispiel: 01.01.1990</label>
+			</div> 
+		<p>&nbsp;</p>		
+			<div class="inputbox">
+				<label for="form_email" class="formlabel">E-Mail</label>
+				<input id="form_email" type="text" name="mail" value="<?php echo $this->Participantdata['mail']?>"/>
+			</div>
+			<div class="formexbox">
+				<label class="form_example">Beispiel: gustav.gans@beispiel.de</label>
+			</div> 
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_phone" class="formlabel">Telefon</label>
+				<input id="form_phone" type="text" name="tel" value="<?php echo $this->Participantdata['tel']?>"/>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_phone" class="formlabel">Art</label>
+				<input type="radio" name="art" class="shiftselection" value="Participantnight" <?php if($this->Participantdata['art']=="Participantnight" || $this->Participantdata['art']==""){echo "checked";}?>>Participantnight<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="art" class="shiftselection" value="Participantnightplus" <?php if($this->Participantdata['art']=="Participantnightplus"){echo "checked";}?>>Participantnight<b>+</b><br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="art" class="shiftselection" value="jufa" <?php if($this->Participantdata['art']=="jufa"){echo "checked";}?>>JuFa<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="art" class="shiftselection" value="tg_sa" <?php if($this->Participantdata['art']=="tg_sa"){echo "checked";}?>>Tagesgast Samstag<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="art" class="shiftselection" value="tg_so" <?php if($this->Participantdata['art']=="tg_so"){echo "checked";}?>>Tagesgast Sonntag<br>
+				
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_phone" class="formlabel">schlafen</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="masse" <?php if($this->Participantdata['schlafen']=="masse"){echo "checked";}?>>im Massenlager<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="zelt" <?php if($this->Participantdata['schlafen']=="zelt"){echo "checked";}?>>im eigenen Zelt<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="gzelt" <?php if($this->Participantdata['schlafen']=="gzelt"){echo "checked";}?>>in Gemeinschaftszelten<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="privat" <?php if($this->Participantdata['schlafen']=="privat"){echo "checked";}?>>Privatunterkunft<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="zimmer" <?php if($this->Participantdata['schlafen']=="zimmer"){echo "checked";}?>>Zimmer<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="wohnmobil" <?php if($this->Participantdata['schlafen']=="wohnmobil"){echo "checked";}?>>Wohnmobil<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="schlafen" class="shiftselection" value="keine" <?php if($this->Participantdata['schlafen']==""){echo "checked";}?>>keine<br>
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+<?php   
+$samstag = Array();
+$samstag = explode(': ',$this->Participantdata['samstag']);
+
+?>
+				<label for="form_phone" class="formlabel">samstag</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Graffiti" <?php if($this->Participantdata['samstag']=="Seminar: Graffiti"){echo "checked";}?>>Graffiti<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Homepage" <?php if($this->Participantdata['samstag']=="Seminar: Homepage"){echo "checked";}?>>Homepage<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Cajon" <?php if($this->Participantdata['samstag']=="Seminar: Cajon"){echo "checked";}?>>Cajon<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Theater" <?php if($this->Participantdata['samstag']=="Seminar: Theater"){echo "checked";}?>>Theater<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: VideoClip" <?php if($this->Participantdata['samstag']=="Seminar: VideoClip"){echo "checked";}?>>VideoClip<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Tanz" <?php if($this->Participantdata['samstag']=="Seminar: "){echo "checked";}?>>Tanz<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Moderation" <?php if($this->Participantdata['samstag']=="Seminar: Moderation"){echo "checked";}?>>Moderation<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Fotografie" <?php if($this->Participantdata['samstag']=="Seminar: Fotografie"){echo "checked";}?>>Fotografie<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Technik" <?php if($this->Participantdata['samstag']=="Seminar: Technik"){echo "checked";}?>>Technik<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Seminar: Band" <?php if($samstag[0]=="Seminar") if($samstag[1] =="Band"){echo "checked";}?>>Band<br>
+				<label for="form_phone" class="formlabel">Bandname: </label>
+				<input id="form_phone" type="text" name="sa_band_name" value="<?php if($samstag[0]=="Seminar") if($samstag[1] =="Band"){echo $samstag[3];}?>"/><br>
+				<label for="form_phone" class="formlabel">Instrumente: </label>
+				<input id="form_phone" type="text" name="sa_band_instr" value="<?php if($samstag[0]=="Seminar") if($samstag[1] =="Band"){echo $samstag[5];}?>"/><br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="Kanufahren" <?php if($this->Participantdata['samstag']=="Kanufahren"){echo "checked";}?>>Kanufahren<br>
+				<label for="form_phone" class="formlabel">.</label>
+				<input type="radio" name="samstag" class="shiftselection" value="nichts" <?php if($this->Participantdata['samstag']=="nichts" || $this->Participantdata['samstag']==""){echo "checked";}?>>freier Samstag / Sportturniere<br>
+				
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_phone" class="formlabel">Unterschrift</label>
+				<input type="checkbox" name="unterschrift" class="shiftselection" value="1" <?php if($this->Participantdata['unterschrift']=="1"){echo "checked";}?>>vorhanden<br>
+		
+			</div>
+		<p>&nbsp;</p>
+			<div class="inputbox">
+				<label for="form_phone" class="formlabel">Kommentar</label>
+				<input id="form_phone" type="text" name="kommentar" value="<?php echo $this->Participantdata['kommentar']?>"/>
+			</div>
+		<p>&nbsp;</p>
+				<input id="save_button" type="submit" value="Participant speichern" />
+	</form>	
+	
+	
+</div>		
+
+

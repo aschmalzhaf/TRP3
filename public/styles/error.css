@@ -1,0 +1,42 @@
+@CHARSET "ISO-8859-1";
+
+body{
+	padding: 0px;
+	font-family: Arial;
+}
+
+
+#header_in {
+	float:left; 
+	
+	margin: 0px;
+	width: 100%;
+	height: 37px;
+	background: white url(../images/logo.jpg) no-repeat; 
+}
+
+#headline {
+	margin-left: 150px; 
+	margin-top: 7px;
+	float: left; 
+	height: 20px;
+	font-weight: bold;
+	font-size: 1.2em;
+	
+}
+#box {
+	width: 60%;
+	min-height: 300px; 
+	background-color: #E00; 
+	border-style: dotted; 
+	border-color: black;
+	margin-left: 40px;
+	margin-top: 40px; 
+	padding: 0px;
+}
+
+
+#content {
+	margin: 30px 30px 30px 30px;
+	float: left;
+}

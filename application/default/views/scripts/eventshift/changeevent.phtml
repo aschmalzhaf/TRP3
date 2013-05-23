@@ -1,0 +1,320 @@
+<?php
+$this->headScript()->offsetSetFile(50, '/scripts/json2.js');
+$this->headScript()->offsetSetFile(150, '/scripts/jquery_validate.js');
+$this->headScript()->offsetSetFile(200, '/scripts/changeevent.js');
+?>
+
+<script src="/scripts/json2.js"></script>
+<script src="/scripts/jquery_validate.js"></script>
+<script src="/scripts/changeevent.js"></script>
+<style type="text/css">
+    <!--
+    #col1 {
+        float: left;
+        width: 35%;
+        height: 100%;
+        margin: 0px;
+        padding: 2px;
+    }
+
+    #col2 {
+        background: #81f731;
+        float: left;
+        width: 30%;
+        height: 100%;
+        margin: 0px;
+        padding: 2px;
+    }
+
+    #col3 {
+        background: #81f731;
+        float: left;
+        width: 25%;
+        height: 100%;
+        margin: 0px;
+        padding: 2px;
+    }
+
+    #eventpanel {
+        background: #EEE;
+        border: solid 2px;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    #shiftslist {
+        border: #81f731 solid 4px;
+    }
+
+    .eventformlabel {
+        margin-left: 2em;
+        padding-right: 1em;
+        float: left;
+    }
+
+    .eventinputbox {
+        float: left;
+    }
+
+    .eventbox {
+        float: left;
+        border: solid 2px;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .shiftbox {
+        float: left;
+        border: solid 1px;
+        padding: 10px;
+        margin: 5px;
+        margin-left: 50px;
+        background-color: white;
+    }
+
+    .shiftinputbox {
+        width: 100%;
+        margin: 1px;
+    }
+
+    .shiftformlabel {
+        width: 6em;
+        float: left;
+    }
+
+    .eventformlabel {
+        width: 6em;
+        float: left;
+    }
+
+    #toggler-button {
+        width: 20px;
+        height: 20px;
+        background: url(/images/symbolize.jpg) 257px 20px;
+    }
+    #fj_container {
+        width: 20px;
+        height: 400px;
+        float: right;
+        position: fixed;
+        top: 120px;
+        right: 0px;
+    }
+
+    #fj {
+        width: 250px;
+        height: 400px;
+        background: #000;
+        color: #FFF;
+        display: none;
+        float: right;
+        padding: 10px 10px 10px 10px;
+        overflow-y: scroll;
+    }
+    #fj a {
+        color: #FFF;
+    }
+    -->
+</style>
+
+<!-- start normal site -->
+
+<!-- Hidden Infos -->
+<form>
+    <input type="hidden" id="standarddate" value="<?php echo $this->standarddate ?>"/>
+    <input type="hidden" id="selectedshift" value="<?php echo $this->selshift ?>"/>
+</form>
+
+
+<div id="col1">
+    <div id="eventpanel">
+        <form id="eventform" action="/Eventshift/changeevent" method="POST" accept-charset="UTF-8"
+              onsubmit="javascript:return confirm('Veranstaltung wirklich l&ouml;schen?');">
+            <div class="eventinputbox">
+                <label for="form_ID" class="eventformlabel">ID</label>
+                <?php echo $this->eventdata['ID'] ?>
+                <input id="form_ID" type="hidden" name="form_ID" value="<?php echo $this->eventdata['ID'] ?>"/>
+            </div>
+            <p>&nbsp;</p>
+
+            <div class="eventinputbox">
+                <label for="form_name" class="eventformlabel">Name<span class="reqstar">*</span> </label> <input
+                    id="form_name" type="text" name="form_name" value="<?php echo $this->eventdata['name'] ?>"/>
+            </div>
+            <p>&nbsp;</p>
+
+            <div class="eventinputbox">
+                <label for="form_location" class="eventformlabel">Ort</label> <input id="form_location" type="text"
+                                                                                     name="form_location"
+                                                                                     value="<?php echo $this->eventdata['location_name'] ?>"
+                                                                                     disabled/> <input
+                                                                                     id="form_locationid" type="hidden" name="form_locationid"
+                                                                                     value="<?php echo $this->eventdata['locationid'] ?>"/> <a href="#" id="locationpanelbutton"><img
+                        src="/images/sjgo.gif"/> </a>
+            </div>
+            <p>&nbsp;</p>
+
+            <div class="eventinputbox">
+                <label for="form_lead" class="eventformlabel">Verantwortlich</label> <input id="form_lead" type="text"
+                                                                                            name="form_lead"
+                                                                                            value="<?php echo $this->eventdata['lead_fname'] . " " . $this->eventdata['lead_lname'] ?>"
+                                                                                            disabled/> <input
+                                                                                            id="form_leadid" type="hidden" name="form_leadid"
+                                                                                            value="<?php echo $this->eventdata['leadid'] ?>"/> <a href="#" id="leadpanelbutton"><img
+                        src="/images/sjgo.gif"/> </a>
+            </div>
+            <p>&nbsp;</p>
+
+            <div class="eventinputbox">
+                <label for="form_eventnode" class="eventformlabel">Notiz</label>
+                <textarea id="form_eventnote" name="form_eventnote" cols="32" rows="6"><?php echo $this->eventdata['note'] ?></textarea>
+            </div>
+            <div class="eventinputbox">
+                <label for="horelevant" class="eventformlabel">auf Handout</label><input id="horelevant" type="checkbox" value="true" <?php if ($this->eventdata['horelevant']) echo "checked"; ?>/>
+            </div>
+            <p>&nbsp;</p>
+            <div class="eventinputbox">
+                <label for="saveevent" class="eventformlabel">&nbsp;</label>
+                <input id="saveevent" name="saveevent" type="submit" value="&Auml;nderungen speichern"/>
+                <label for="delevent" class="eventformlabel">&nbsp;</label>
+                <input id="delevent" name="delevent" type="submit" value="Veranstaltung l&ouml;schen"/>
+            </div>
+        </form>
+
+        <div class="eventinputbox">
+            <form action="/Eventshift/eventoverview" method="post">
+
+                <input type="hidden" name="ID" value="<?php echo $this->eventdata['ID'] ?>"/> <label for="createoverview"
+                                                                                                    class="eventformlabel">
+                    &nbsp;</label> <input type="submit" name="createoverview"
+                                      value="&Uuml;bersicht erzeugen"/>
+
+            </form>
+        </div>
+        <p>&nbsp;</p>
+    </div>
+
+    <br> <br> <strong>Schichten:</strong>
+
+    <form action="">
+        <select size="10" id="shiftslist" style="width: 100%">
+        </select>
+    </form>
+
+</div>
+
+<div id="col2">
+    <fieldset>
+        <legend>Schicht</legend>
+        <form id="shiftform" action="" method="get" accept-charset="UTF-8">
+            <div class="shiftinputbox">
+                <label for="form_shiftID" class="shiftformlabel">ID</label> <input id="form_shiftID" type="text"
+                                                                                   name="form_shiftID"
+                                                                                   style="width: 5em;" value=""
+                                                                                   disabled/>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="form_shiftname" class="shiftformlabel">Name<span class="reqstar">*</span> </label> <input
+                    id="form_shiftname" type="text" name="form_shiftname" value=""/>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="form_shiftstart" class="shiftformlabel">Start<span class="reqstar">*</span> </label>
+                <input id="form_shiftstartdate" type="text" name="form_shiftstartdate"
+                       style="width: 5em; background-color: #AAA;" value=""/>
+                <input id="form_shiftstarttime" type="text" name="form_shiftstarttime" style="width: 5em;" value=""/>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="form_shiftend" class="shiftformlabel">Ende<span class="reqstar">*</span> </label>
+                <input id="form_shiftenddate" type="text" name="form_shiftenddate"
+                       style="width: 5em; background-color: #AAA;" value=""/>
+                <input id="form_shiftendtime" type="text" name="form_shiftendtime" style="width: 5em;" value=""/>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="form_shiftreqstaff" class="shiftformlabel">MA-Bedarf<span class="reqstar">*</span> </label>
+                <input id="form_shiftreqstaff" type="text" name="form_shiftreqstaff" style="width: 5em;"
+                       value=""/>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="form_shiftnote" class="shiftformlabel">Notiz </label>
+                <textarea id="form_shiftnote" name="form_shiftnote" cols="20" rows="2">
+                </textarea>
+            </div>
+
+            <div class="shiftinputbox">
+                <label for="saveshift" class="shiftformlabel">&nbsp;</label> <input id="saveshift" name="saveshift"
+                                                                                    type="submit"
+                                                                                    value="&Auml;nderungen speichern"/>
+                <br> <label for="delshift"
+                            class="shiftformlabel">&nbsp;</label> <input id="delshift" name="delshift" type="submit"
+                            value="Schicht l&ouml;schen"/>
+            </div>
+        </form>
+        <br> <br> Zugewiesene Mitarbeiter:<br> <input id="delassignment" name="delassignment" type="submit"
+                                                      value="Zuweisung l&ouml;schen"/> <br> <select size="15"
+                                                      id="addedusers"
+                                                      class="userlist"
+                                                      style="width: 18em">
+        </select>
+    </fieldset>
+</div>
+
+<div id="col3">
+    <strong>Mitarbeiter hinzuf&uuml;gen</strong> <br> <br> Anzeigen: <br>
+
+    <form>
+        <input type="radio" name="show" class="seluserselection" value="all" checked>alle<br> <input type="radio"
+                                                                                                     name="show"
+                                                                                                     class="seluserselection"
+                                                                                                     value="time">die
+        mit Zeit<br> <input type="radio"
+                            name="show" class="seluserselection" value="timestrong">die mit Zeit (streng)<br> <br>
+        <input id="remfull" name="remfull" value="true" type="checkbox"/>voll gebuchte ausblenden <br> <input id="assignuser"
+                                                                                                 name="assignuser"
+                                                                                                 type="submit"
+                                                                                                 value="Mitarbeiter zuweisen"/>
+        <br> <input id="assignfilter" name="assignfilter" type="text"/> <br> <select size="26" id="possibleusers"
+                                                                                     class="userlist"
+                                                                                     style="width: 18em">
+        </select> <select id="possibleusersclone" style="display: none">
+        </select>
+
+    </form>
+</div>
+
+
+
+<!-- selection boxes -->
+<div id="overlay" style="display: none;"></div>
+
+<div id="locationpanel" class="toppanel" style="display: none;">
+    <h2>Bitte Ort ausw&auml;hlen:</h2>
+    <br> <strong><a href="" id="" class="locationvaluebutton">KEIN EINTRAG</a> </strong> <br>
+    <?php
+    echo $this->locationopts;
+    ?>
+</div>
+
+<div id="leadpanel" class="toppanel" style="display: none;">
+    <h2>Bitte Verantwortlichen ausw&auml;hlen:</h2>
+    <br> <strong><a href="" id="" class="leadvaluebutton">KEIN EINTRAG</a> </strong> <br>
+    <?php
+    echo $this->leadopts;
+    ?>
+</div>
+
+<!-- fast jump (event panel)  box -->
+
+<br>
+
+<div id="fj_container">
+    <a id="toggler">
+        <div id="toggler-button">
+        </div>
+    </a>
+    <div id="fj"></div>
+</div>

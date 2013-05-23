@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Default Layout
+ *
+ * @author Alexander Schmalzhaf
+ * @version 2.0
+ *
+ * Erweiterungen:
+ * 2011:
+ * - Hintergrundbild dynamisch geladen
+ * - Login-Box in die Mitte
+ */
+
+echo '<?xml version="1.0" encoding="UTF-8" ?>';
+echo $this->doctype();
+?>
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Teennight: Log' dich ein...!</title>
+    <?php
+    echo $this->headLink()->appendStylesheet('/public/styles/login.css');
+    $this->headScript()->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js');
+    $this->headScript()->appendFile('https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js');
+    echo $this->headScript();
+    ?>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/images/favicon_v1.ico">
+    <link href="/styles/bootstrap.css" rel="stylesheet">
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if(screen.width <= 1024){
+            filename = "login_bg_1024.jpg";
+        }else if(screen.width <=1280){
+            filename = "login_bg_1280.jpg";
+        }else{
+            filename = "login_bg_1680.jpg";
+        };
+
+
+        $("body").css("background-image", "url(/public/images/"+filename+")");
+
+
+    });
+
+    </script>
+
+</head>
+
+<body>
+    <!-- Box -->
+    <div id="box">
+        <div id="header">
+
+            <div id="logo">&nbsp;</div>
+            <div id="version">Version: 2013</div>
+        </div>
+
+        <!-- content -->
+        <div id="content">
+            <?php echo $this->layout()->content ?>
+            <br />
+        </div>
+
+        <div class="footer">
+            &copy; Südwestdeutscher EC-Verband | <a href="http://www.swdec.de/menue/impressum/">Impressum</a> | <a href="http://www.swdec.de/menue/kontakt/">Kontakt</a>
+        </div>
+    </div>
+</body>
+</html>

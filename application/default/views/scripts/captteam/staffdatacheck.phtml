@@ -1,0 +1,352 @@
+<script src="/scripts/jquery_validate.js"> </script>
+<script src="/scripts/staffdatacheck.js"> </script> 
+<script type="text/javascript">    
+
+    $("document").ready(function(){
+        //Speichern eines Feldes beim Verlassen des Input-Feldes
+        //wenn es sich geändert hat.
+        //INPUTs
+        $('#corrform input[type!="checkbox"]').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        
+        $('#corrform input[type!="checkbox"]').blur(function(){
+            var url = '/Apicaptteam/updatestaff';
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {   "ID":$("#ID").text(),
+                    "field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //CHECKBOXes
+        $('#corrform input[type="checkbox"]').click(function(){
+            var oldval;
+            var newval;
+            var url = '/Apicaptteam/updatestaff';
+            
+            if($(this).attr('checked') == "checked"){
+                oldval = 0;
+                newval = 1;
+            }else{
+                oldval = 1;
+                newval = 0;
+            }
+            $.post(url,
+                {   "ID":$("#ID").text(),
+                    "field":$(this).attr('name'),
+                    "oldvalue":oldval,
+                    "newvalue":newval});
+            getMessages();
+        });
+        //SELECTs
+        $('#corrform select').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        $('#corrform select').blur(function(){
+            var url = '/Apicaptteam/updatestaff';
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {   "ID":$("#ID").text(),
+                    "field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //TEXTAREAs
+        $('#corrform textarea').focus(function(){
+            $(this).data('oldvalue',$(this).val());
+        });
+        $('#corrform textarea').blur(function(){
+            var url = '/Apicaptteam/updatestaff';
+            if($(this).val() != $(this).data('oldvalue')){
+                $.post(url,
+                {   "ID":$("#ID").text(),
+                    "field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            }
+            $(this).data('oldvalue','');    
+            getMessages();
+        });
+        //RADIOs
+        $('#corrform input[type="radio"]').click(function(){
+            var newval;
+            var url = '/Apicaptteam/updatestaff';
+            newval = $(this).val();
+            $.post(url,
+                {   "ID":$("#ID").text(),
+                    "field":$(this).attr('name'),
+                    "oldvalue":$(this).data('oldvalue'),
+                    "newvalue":$(this).val()});
+            getMessages();
+        });
+    });
+</script>
+<div class="row-fluid" id="teennight-data">
+    <div class="span6">
+        <legend>Persönliche Daten</legend> 
+        <div class="control-group">
+            <label for="" class="control-label">ID: <span id="ID"><?php echo $this->usrdata['ID'] ?></span> | Benutzername: <?php echo $this->usrdata['usrname'] ?></label>
+        </div>
+
+        <div class="control-group">
+            <label for="" class="control-label">Letzte Änderung: </label>
+            <?php echo $this->usrdata['lastchanged'] ?>
+        </div>
+
+        <form id="corrform" class="form-horizontal" onsubmit="return false">
+            <div class="control-group">
+                <label for="form_fname" class="control-label">Vorname</label>
+                <div class="controls trpichange">
+                    <input class="input-large" id="form_fname" type="text" name="fname" value="<?php echo $this->usrdata['fname'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_lname" class="control-label">Nachname</label>
+                <div class="controls trpichange">
+                    <input id="form_lname" type="text" name="lname" value="<?php echo $this->usrdata['lname'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_street" class="control-label">Stra&szlig;e/Hausnr.</label>
+                <div class="controls trpichange">
+                    <input id="form_street" type="text" name="street" value="<?php echo $this->usrdata['street'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_city" class="control-label">Ort</label>
+                <div class="controls trpichange">
+                    <input id="form_city" type="text" name="city" value="<?php echo $this->usrdata['city'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_birthday" class="control-label">Geburtstag</label>
+                <div class="controls trpichange">
+                    <input id="form_birthday" type="text" name="birthday" value="<?php echo $this->usrdata['birthday'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_email" class="control-label">E-Mail</label>
+                <div class="controls trpichange">
+                    <input id="form_email" type="text" name="email" value="<?php echo $this->usrdata['email'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_mphone" class="control-label">Handynummer</label>
+                <div class="controls trpichange">
+                    <input id="form_mphone" type="text" name="mphone" value="<?php echo $this->usrdata['mphone'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_phone" class="control-label">Festnetz</label>
+                <div class="controls trpichange">
+                    <input id="form_phone" type="text" name="phone" value="<?php echo $this->usrdata['phone'] ?>"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_kv" class="control-label">KV</label>
+                <div class="controls trpichange">
+                    <select size="1" id="form_kv" name="kv">
+                        <?php echo $this->kvopts ?>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_sjob" class="control-label">Spezielle Aufgabe</label>
+                <div class="controls">
+                    <input id="form_sjobid" type="hidden" name="form_sjobid" value=""/>
+                    <input id="form_sjob" type="text" name="form_sjob" disabled/>
+
+                    <button class="btn" type="button" data-toggle="modal" href="#sjobpanel" ><i class="icon-list-alt"></i></button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_blocked" class="control-label">ganze Nacht gesperrt</label>
+                <div class="controls trpichange">
+                    <input type="checkbox" id="form_blocked" name="blocked"
+                           value="true" <?php
+                        if ($this->usrdata['blocked'] == "1") {
+                            echo "checked";
+                        }
+                        ?>/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_bus" class="control-label">Bussle fahren</label>
+                <div class="controls trpichange">
+                    <input id="form_bus" type="checkbox" name="bus" value="true" <?php
+                           if ($this->usrdata['bus'] != 0) {
+                               echo "checked";
+                           }
+                        ?>>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_climbing" class="control-label">Klettererfahrung</label>
+                <div class="controls trpichange">
+                    <input id="form_climbing" type="checkbox" name="climbing" value="true" <?php
+                           if ($this->usrdata['climbing'] != 0) {
+                               echo "checked";
+                           }
+                        ?>>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_lifeguard" class="control-label">Rettungsschwimmer</label>
+                <div class="controls trpichange">
+                    <input id="form_lifeguard" type="checkbox" name="lifeguard" value="true" <?php
+                           if ($this->usrdata['lifeguard'] != 0) {
+                               echo "checked";
+                           }
+                        ?>>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="form_medic" class="control-label">Sanitäter</label>
+                <div class="controls trpichange">
+                    <input id="form_medic" type="checkbox" name="medic" value="true" <?php
+                           if ($this->usrdata['medic'] != 0) {
+                               echo "checked";
+                           }
+                        ?>>
+                </div>
+            </div>
+
+
+            <div class="control-group">
+                <label for="form_role" class="control-label">Rolle</label>
+                <div class="controls trpichange">
+                    <select size="1" id="form_role" name="role">
+                        <?php echo $this->roleopts ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_exp" class="control-label">Erfahrungen</label>
+                <div class="controls trpichange">
+                    <textarea id="form_exp" name="exp" cols="20" rows="2"><?php echo $this->usrdata['exp'] ?></textarea>
+                    <p class="help-block">Beispiel: Erfahren im Klettern</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_usrnote" class="control-label">Anmerkung vom Mitarbeiter</label>
+                <div class="controls trpichange">
+                    <textarea id="form_usrnote" name="usrnote" cols="20"
+                              rows="2"><?php echo $this->usrdata['usrnote'] ?></textarea>
+                    <p class="help-block">Beispiel: Erfahren im Klettern</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_intnote" class="control-label">interne Notiz <br/>(nur für TNTler sichtbar)</label>
+                <div class="controls trpichange">
+                    <textarea id="form_intnote" name="intnote" cols="20"
+                              rows="2"><?php echo $this->usrdata['intnote'] ?></textarea>
+                    <p class="help-block">Beispiel: hat Gipsfuß, kann nicht schwimmen (Wichtig für
+                        Mitarbeitereinteilung)</p>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="form_locked" class="control-label">voll ausgebucht</label>
+                <div class="controls trpichange">
+                    <input type="checkbox" name="locked" value="1" <?php if ($this->usrdata['locked'] == 1) echo "checked"; ?>/>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Rechte Spalte  -->
+    <div class="span6">
+        <legend>Wünsche</legend>  
+        <ul>
+            <?php
+            if (($wish = $this->usrdata['wish1_name']) != "")
+                echo "<li>$wish</li>";
+
+            if (($wish = $this->usrdata['wish2_name']) != "")
+                echo "<li>$wish</li>";
+
+            if (($wish = $this->usrdata['wish3_name']) != "")
+                echo "<li>$wish</li>";
+            ?>
+        </ul>
+
+
+        <legend>Veranstaltungen & Schichten</legend>  
+
+        <form method="post">
+            <select size="10" id="addedshifts" class="shiftoptions" style="width: 33em">
+                <?php echo $this->events; ?>
+            </select>
+
+            <div>
+                <br>
+                <input type="radio" name="show" class="shiftselection" value="all" checked>alle<br>
+                <input type="radio" name="show" class="shiftselection" value="time">Zeit<br>
+                <input type="radio" name="show" class="shiftselection" value="timestrong">Zeit (streng)<br>
+
+                <div>
+                    <input type="checkbox" id="clearfull" name="clearfull" class="shiftselection" value="true" checked/>Volle Schichten ausblenden<br>
+                </div>
+                <input type="submit" id="assign" value="zuweisen"/> 
+                <input type="submit" id="delassignment" value="l&ouml;schen"/>
+                <br/>
+                <input id="filter" name="filter" type="text"/>
+                <br/>
+                <select size="10" id="possibleshifts" class="shiftoptions" style="width: 33em">
+                    <?php echo $this->possibleshifts; ?>
+                </select>
+                <select id="possibleshiftsclone" class="shiftoptions" style="display: none">
+                </select>
+        </form>
+    </div>
+    <br>
+    <br>
+    Laufzettel anschauen:
+    <br><br>
+    <form action="/Eventshift/generateps/<?= $this->usrdata['ID'] ?>" method="post">
+        <input type="submit" value="Job&uuml;bersicht (PDF)"/>
+    </form>
+
+
+</div>
+</div>
+
+
+
+<!--  start selection box -->
+<div id="overlay" style="display:none;"></div>
+
+<div id="sjobpanel" class="toppanel" style="display:none;">
+    <h2>Bitte "spezielle Aufgabe" w&auml;hlen:</h2>
+    <br><strong>ACHTUNG:</strong> Hier nur dann Aufgabe ausw&auml;hlen, wenn der Mitarbeiter KONKRET DAF&Uuml;r
+    angefragt wurde.
+    <br>Reine W&uuml;nsche k&ouml;nnen von diesem selber eingetragen werden!
+    <br>
+    <br>
+    <?php echo $this->sjobopts ?>
+    <strong><a href="#" id="" class="sjobvaluebutton">KEIN EINTRAG</a></strong>
+    <br>
+</div>
