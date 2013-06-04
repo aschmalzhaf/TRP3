@@ -43,14 +43,14 @@ Zend_Layout::startMvc(array('layoutPath'=>'../application/default/layouts',
     'layout'    =>'main'));
 
 //Acl Plugin
-require_once '../library/TRP2/Controller/Plugins/Acl.php';
-require_once '../library/TRP2/Acl.php';
+require_once '../library/TRP/Controller/Plugins/Acl.php';
+require_once '../library/TRP/Acl.php';
 
 $acl = new Acl();
 $frontController->registerPlugin(new Controller_Plugin_Acl($acl));
 
 //Menu Plugin
-require_once '../library/TRP2/Controller/Plugins/Menus.php';
+require_once '../library/TRP/Controller/Plugins/Menus.php';
 $frontController->registerPlugin(new Controller_Plugin_Menus($acl));
 
 //Add Router
